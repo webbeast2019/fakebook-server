@@ -62,4 +62,4 @@ typings/
 
 # IDE
 .idea
-.vs_code
+.vscode
