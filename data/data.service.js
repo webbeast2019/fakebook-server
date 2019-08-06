@@ -1,7 +1,8 @@
 const fs = require('fs');
 const fileName = './data/db.json';
-let db = fs.readFileSync(fileName, 'utf8');
-let entryCounter = db.length;
+const dbString = fs.readFileSync(fileName, 'utf8');
+let db = JSON.parse(dbString);
+let entryCounter = Math.max(...db.map(item => item.id)); // get max id;
 exports.data = db;
 
 exports.createEntry = (data) =>{
@@ -12,7 +13,7 @@ exports.createEntry = (data) =>{
     return entry;
 };
 
-// return true if entry found
+// return entry if found
 exports.updateEntry = (id, data) => {
     const index = db.findIndex(p => p.id === id);
     const entryFound = index > -1;
@@ -20,7 +21,7 @@ exports.updateEntry = (id, data) => {
         db[index] = data;
         saveToDisk();
     }
-    return entryFound;
+    return (entryFound) ? db[index] : undefined;
 };
 
 // return true if entry found
