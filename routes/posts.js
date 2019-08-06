@@ -8,7 +8,8 @@ router
     res.send(dataService.data);
   })
   .get('/:id', function (req, res, next) {
-    res.send(dataService.data);
+    const entryId = parseInt(req.params.id);
+    res.send(dataService.data.find(p => p.id === entryId));
   })
   .post('/', function (req, res, next) {
     const entryData = req.body;
