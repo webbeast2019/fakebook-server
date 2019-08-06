@@ -27,7 +27,7 @@ exports.updateEntry = (id, data) => {
 // return true if entry found
 exports.deleteEntry = (id) => {
     const originalLength = db.length;
-    db = db.filter(p => p.id !== id);
+    exports.data = db = db.filter(p => p.id !== id);
 
     const entryFound = originalLength !== db.length;
     if(entryFound) {

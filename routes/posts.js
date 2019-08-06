@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const dataService = require('../data/data.service');
+const multer  = require('multer');
+const storage = multer.diskStorage({
+  destination: 'images/',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+});
+const upload = multer({ storage: storage });
+
 
 /* GET users listing. */
 router
@@ -11,7 +20,7 @@ router
     const entryId = parseInt(req.params.id);
     res.send(dataService.data.find(p => p.id === entryId));
   })
-  .post('/', function (req, res, next) {
+  .post('/', upload.single('image'), function (req, res, next) {
     const entryData = req.body;
     const newEntry = dataService.createEntry(entryData);
     res.send(newEntry);
