@@ -1,8 +1,8 @@
 [
   {
-    "id": 1,
-    "text": "Microsoft will stop Typescript support in 2020",
-    "image": "post1_image.png"
+    "text": "Microsoft will stop Typescript support in 204",
+    "image": "post16.jpeg",
+    "id": 1
   },
   {
     "id": 2,
@@ -13,7 +13,12 @@
     "text": "Mark Zuckerberg: I'm tired of leading facebook and looking for an heir"
   },
   {
-    "text": "Microsoft will stop Typescript support in 2021",
-    "id": 4
+    "text": "Lorem Impsum2",
+    "image": "post18.png",
+    "id": 18
+  },
+  {
+    "text": "",
+    "id": 19
   }
 ]
