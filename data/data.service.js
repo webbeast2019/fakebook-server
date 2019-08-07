@@ -2,14 +2,16 @@ const fs = require('fs');
 const fileName = './data/db.json';
 const dbString = fs.readFileSync(fileName, 'utf8');
 let db = JSON.parse(dbString);
-let entryCounter = Math.max(...db.map(item => item.id)); // get max id;
+let nextEntryId = Math.max(...db.map(item => item.id)) + 1; // get max id;
 exports.data = db;
 
+exports.getNextEntryId = () => nextEntryId;
+
 exports.createEntry = (data) =>{
-    entryCounter++;
-    const entry = {...data, id: entryCounter};
+    const entry = {...data, id: nextEntryId};
     db.push(entry);
     saveToDisk();
+    nextEntryId++;
     return entry;
 };
 
