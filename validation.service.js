@@ -4,15 +4,27 @@ const Joi = require('@hapi/joi');
 const xssSafe = /(\b)(on\S+)(\s*)=|javascript:|(<\s*)(\/*)script|style(\s*)=|(<\s*)meta/i;
 // create validation scheme - see: https://www.npmjs.com/package/@hapi/joi
 const scheme = Joi.object().keys({
-  text: Joi.string().regex(xssSafe).min(3).max(4000).required()
+  text: Joi.string().regex(xssSafe, {invert:true}).min(3).max(4000).required()
 });
-
-
-exports.validate = (obj) => {
-  return scheme.validate(obj);
-};
 
 exports.scheme = scheme;
 
-const result = exports.validate({hi: "a"});
-console.log(result);
+exports.validate = (obj) => {
+  const result =  scheme.validate(obj);
+  if(result.error) {
+    result.errorMessages = extractErrorMessages(result.error);
+  }
+  return result;
+};
+
+function extractErrorMessages(err) {
+  return err.details.map(item => {
+    console.log(item);
+    if(item.type.includes('regex')) {
+      return `"${item.context.key}" is invalid`;
+    } else {
+      return  item.message;
+    }
+  })
+}
+

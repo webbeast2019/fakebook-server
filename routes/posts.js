@@ -30,7 +30,7 @@ router
     const validation = validationService.validate(entryData);
 
     if(validation.error) {
-      res.status(400).send({error: validation.error.details})
+      res.status(400).send({error: validation.errorMessages})
     } else {
       const newEntry = dataService.createEntry(entryData);
       res.send(newEntry);
@@ -45,7 +45,7 @@ router
       res.status(400).end(); // bad request
     }
     if(validation.error) {
-      res.status(400).send({error: validation.error.details})
+      res.status(400).send({error: validation.errorMessages})
     } else {
       const updatedEntry = dataService.updateEntry(entryId, entryData);
       res.send(updatedEntry);
