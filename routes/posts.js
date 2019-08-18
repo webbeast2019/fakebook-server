@@ -11,15 +11,16 @@ const generatePostFileName = (file) => {
   const hash = Math.random().toString(36).substr(2) + (+new Date).toString(36);
   return `${name}_${hash}.${ext}`;
 };
-let nextFileName;
+// let nextFileName;
 
-const storage = multer.diskStorage({
-  destination: 'images/',
-  filename: (req, file, cb) => {
-    nextFileName = generatePostFileName(file);
-    cb(null, nextFileName)
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: 'images/',
+//   filename: (req, file, cb) => {
+//     nextFileName = generatePostFileName(file);
+//     cb(null, nextFileName)
+//   }
+// });
+const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
 
 
@@ -32,8 +33,8 @@ router
     dataService.getPostById(req.params.id,(post) => res.send(post));
   })
   .post('/', upload.single('image'), function (req, res, next) {
+    const validation = validationService.validate(req.body);
     const entryData = getEntryData(req);
-    const validation = validationService.validate(entryData);
 
     if(validation.error) {
       res.status(400).send({error: validation.errorMessages})
@@ -45,8 +46,8 @@ router
   })
   .put('/:id', upload.single('image'), function (req, res, next) {
     const postId = req.params.id;
+    const validation = validationService.validate(req.body);
     const entryData = getEntryData(req);
-    const validation = validationService.validate(entryData);
 
     if (entryData._id !== postId) {
       res.status(400).end(); // bad request
@@ -69,11 +70,9 @@ router
 
 function getEntryData(req) {
   const entryData = {...req.body};
-  // if(req.body.id) {
-  //   entryData.id = parseInt(req.body.id)
-  // }
   if(req.file) {
-    entryData['image'] = nextFileName;  // add file name to post data
+    entryData['image'] = generatePostFileName(req.file);  // add file name to post data
+    entryData['imageFile'] = req.file.buffer;  // add file to post data
   }
   return entryData;
 }

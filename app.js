@@ -5,6 +5,7 @@ const logger = require('morgan');
 const cors = require('cors');
 
 const postsRouter = require('./routes/posts');
+const imagesRouter = require('./routes/images');
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', imagesRouter);
 
 app.use('/api/posts', postsRouter);
 

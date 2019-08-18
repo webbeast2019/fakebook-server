@@ -14,7 +14,8 @@ db.once('open', function () {
 
 const extractPostFields = (postData) => ({
   text: postData.text,
-  image: postData.image
+  image: postData.image,
+  imageFile: postData.imageFile
 });
 
 module.exports.creatPost = (postData, callback) => {
@@ -38,7 +39,7 @@ module.exports.updatePostById = (_id, postData, callback) => {
 };
 
 module.exports.getAllPosts = (callback) => {
-  Post.find(function (err, posts) {
+  Post.find().select({imageFile:0}).exec(function (err, posts) {
     assert.strictEqual(null, err);
     console.log(`mongoose operation success - got ${posts.length} posts`);
     callback(posts);
@@ -58,5 +59,13 @@ module.exports.deletePostById = (_id, callback) => {
     assert.strictEqual(null, err);
     console.log('mongoose operation success - post delete', post);
     callback(post);
+  });
+};
+
+module.exports.getImageByName = (imageName, callback) => {
+  Post.findOne({image:imageName}).select({image:1, imageFile:1}).exec(function (err, post) {
+    assert.strictEqual(null, err);
+    console.log('mongoose operation success - got buffer');
+    callback(post._doc.imageFile);
   });
 };
