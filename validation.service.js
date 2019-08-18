@@ -4,6 +4,8 @@ const Joi = require('@hapi/joi');
 const xssSafe = /(\b)(on\S+)(\s*)=|javascript:|(<\s*)(\/*)script|style(\s*)=|(<\s*)meta/i;
 // create validation scheme - see: https://www.npmjs.com/package/@hapi/joi
 const scheme = Joi.object().keys({
+  id: Joi.number(),
+  image: Joi.string(),
   text: Joi.string().regex(xssSafe, {invert:true}).min(3).max(4000).required()
 });
 

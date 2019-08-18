@@ -5,12 +5,19 @@ const validationService = require('../validation.service');
 const multer = require('multer');
 
 // get file name based on file object and data next-entry-id
-const generatePostFileName = (file) => `post${dataService.getNextEntryId()}.${file.mimetype.split('/')[1]}`;
+const generatePostFileName = (file) => {
+  const name = file.originalname.includes('.') ? file.originalname.split('.')[0] : file.originalname;
+  const ext = file.mimetype.split('/')[1];
+  const hash = Math.random().toString(36).substr(2) + (+new Date).toString(36);
+  return `${name}_${hash}}.${ext}`;
+};
+let nextFileName;
 
 const storage = multer.diskStorage({
   destination: 'images/',
   filename: (req, file, cb) => {
-    cb(null, generatePostFileName(file))
+    nextFileName = generatePostFileName(file);
+    cb(null, nextFileName)
   }
 });
 const upload = multer({storage: storage});
@@ -64,7 +71,7 @@ function getEntryData(req) {
     entryData.id = parseInt(req.body.id)
   }
   if(req.file) {
-    entryData['image'] = generatePostFileName(req.file);  // add file name to post data
+    entryData['image'] = nextFileName;  // add file name to post data
   }
   return entryData;
 }
