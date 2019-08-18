@@ -12,10 +12,13 @@ db.once('open', function () {
   console.log(`Connected to mongoDB[${dbName}] using mongoose!`)
 });
 
+const extractPostFields = (postData) => ({
+  text: postData.text,
+  image: postData.image
+});
+
 module.exports.creatPost = (postData, callback) => {
-  const post = new Post({
-    text: postData.text
-  });
+  const post = new Post(extractPostFields(postData));
 
   post.save(function (err, result) {
     assert.strictEqual(null, err);
@@ -25,7 +28,9 @@ module.exports.creatPost = (postData, callback) => {
 };
 
 module.exports.updatePostById = (_id, postData, callback) => {
-  Post.findOneAndUpdate({_id}, {text: postData.text}, (function (err, result) {
+  const updateFields = extractPostFields(postData);
+
+  Post.findOneAndUpdate({_id}, updateFields, (function (err, result) {
     assert.strictEqual(null, err);
     console.log('mongoose update operation success', result);
     callback(result);
@@ -41,7 +46,6 @@ module.exports.getAllPosts = (callback) => {
 };
 
 module.exports.getPostById = (_id, callback) => {
-  console.log(_id);
   Post.find({_id}, function (err, postArr) {
     assert.strictEqual(null, err);
     console.log('mongoose operation success - got post', postArr);

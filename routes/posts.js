@@ -9,7 +9,7 @@ const generatePostFileName = (file) => {
   const name = file.originalname.includes('.') ? file.originalname.split('.')[0] : file.originalname;
   const ext = file.mimetype.split('/')[1];
   const hash = Math.random().toString(36).substr(2) + (+new Date).toString(36);
-  return `${name}_${hash}}.${ext}`;
+  return `${name}_${hash}.${ext}`;
 };
 let nextFileName;
 
