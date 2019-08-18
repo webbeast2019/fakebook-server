@@ -1,16 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const dataService = require('../data/data.service');
+const dataService = require('../data/data.db.service');
 const validationService = require('../validation.service');
 const multer = require('multer');
 
-// get file name based on file object and data next-entry-id
-const generatePostFileName = (file) => `post${dataService.getNextEntryId()}.${file.mimetype.split('/')[1]}`;
+// get file name based on file object
+const generatePostFileName = (file) => {
+  const name = file.originalname.includes('.') ? file.originalname.split('.')[0] : file.originalname;
+  const ext = file.mimetype.split('/')[1];
+  const hash = Math.random().toString(36).substr(2) + (+new Date).toString(36);
+  return `${name}_${hash}}.${ext}`;
+};
+let nextFileName;
 
 const storage = multer.diskStorage({
   destination: 'images/',
   filename: (req, file, cb) => {
-    cb(null, generatePostFileName(file))
+    nextFileName = generatePostFileName(file);
+    cb(null, nextFileName)
   }
 });
 const upload = multer({storage: storage});
@@ -19,11 +26,10 @@ const upload = multer({storage: storage});
 /* GET users listing. */
 router
   .get('/', function (req, res, next) {
-    res.send(dataService.data);
+    dataService.getAllPosts((posts) => res.send(posts));
   })
   .get('/:id', function (req, res, next) {
-    const entryId = parseInt(req.params.id);
-    res.send(dataService.data.find(p => p.id === entryId));
+    dataService.getPostById(req.params.id,(post) => res.send(post));
   })
   .post('/', upload.single('image'), function (req, res, next) {
     const entryData = getEntryData(req);
@@ -32,39 +38,42 @@ router
     if(validation.error) {
       res.status(400).send({error: validation.errorMessages})
     } else {
-      const newEntry = dataService.createEntry(entryData);
-      res.send(newEntry);
+      dataService.creatPost(entryData, (newEntry) => {
+        res.send(newEntry);
+      });
     }
   })
   .put('/:id', upload.single('image'), function (req, res, next) {
-    const entryId = parseInt(req.params.id);
+    const postId = req.params.id;
     const entryData = getEntryData(req);
     const validation = validationService.validate(entryData);
 
-    if (entryData.id !== entryId) {
+    if (entryData._id !== postId) {
       res.status(400).end(); // bad request
     }
     if(validation.error) {
       res.status(400).send({error: validation.errorMessages})
     } else {
-      const updatedEntry = dataService.updateEntry(entryId, entryData);
-      res.send(updatedEntry);
+      dataService.updatePostById(postId, entryData, (updatedEntry) => {
+        res.send(updatedEntry);
+      });
     }
   })
   .delete('/:id', function (req, res, next) {
-    const entryId = parseInt(req.params.id);
-    const foundAndDeleted = dataService.deleteEntry(entryId);
-    const statusCode = (foundAndDeleted) ? 200 : 400;
-    res.status(statusCode).end();
+    const postId = req.params.id;
+    dataService.deletePostById(postId, (foundAndDeleted) => {
+      const statusCode = (foundAndDeleted) ? 200 : 400;
+      res.status(statusCode).end();
+    });
   });
 
 function getEntryData(req) {
   const entryData = {...req.body};
-  if(req.body.id) {
-    entryData.id = parseInt(req.body.id)
-  }
+  // if(req.body.id) {
+  //   entryData.id = parseInt(req.body.id)
+  // }
   if(req.file) {
-    entryData['image'] = generatePostFileName(req.file);  // add file name to post data
+    entryData['image'] = nextFileName;  // add file name to post data
   }
   return entryData;
 }
