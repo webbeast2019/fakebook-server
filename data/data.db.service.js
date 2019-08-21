@@ -47,7 +47,7 @@ module.exports.getAllPosts = (callback) => {
 };
 
 module.exports.getPostById = (_id, callback) => {
-  Post.find({_id}, function (err, postArr) {
+  Post.find({_id}).select({imageFile:0}).exec(function (err, postArr) {
     assert.strictEqual(null, err);
     console.log('mongoose operation success - got post', postArr);
     callback(postArr[0]);
